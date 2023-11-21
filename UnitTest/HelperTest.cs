@@ -1,5 +1,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using App;
+using System.Collections.Generic;
 
 /*
  Тестовый проект "отзеркаливает" основной проект, его классы наз. от имени классов проекта, добавляя "Test",
@@ -56,6 +57,54 @@ namespace UnitTest
                 "Hello, hello, hello.",
                 helper.Finalize("Hello, hello, hello")
             );
+        }
+
+        [TestMethod]
+        public void CombineUrlTest()
+        {
+            Helper helper = new();
+            Dictionary< string[], string> testCases = new()
+            {
+                { new[] { "/home", "index" }, "/home/index" },
+                { new[] { "/shop", "/cart" }, "/shop/cart" },
+                { new[] { "auth/", "logout" }, "/auth/logout" },
+                { new[] { "forum/", "topic/" }, "/forum/topic" },
+                { new[] { "/home///", "index" }, "/home/index" },
+                { new[] { "///home/", "/index" }, "/home/index" },
+                { new[] { "home/", "////index" }, "/home/index" },
+                { new[] { "///home/////", "////index///" }, "/home/index" },
+            };
+            foreach (var testCase in testCases)
+            {
+                Assert.AreEqual(
+                    testCase.Value,
+                    helper.CombineUrl(testCase.Key[0], testCase.Key[1]),
+                    $"{testCase.Key[0]} - {testCase.Key[1]}"
+                );
+            }
+        }
+        [TestMethod]
+        public void CombineUrlMultiTest()
+        {
+            Helper helper = new();
+            Dictionary<string[], string> testCases = new()
+            {
+                { new[] { "/home", "/index", "/gmail" }, "/home/index/gmail" },
+                { new[] { "/shop", "/cart/", "com" }, "/shop/cart/com" },
+                { new[] { "auth/", "logout" }, "/auth/logout" },
+                { new[] { "forum", "topic/", "/com/" }, "/forum/topic/com" },
+                { new[] { "//forum////", "topic////", "///com" }, "/forum/topic/com" },
+                { new[] { "forum", "topic", "com" }, "/forum/topic/com" },
+                { new[] { "/forum/", "/topic///////////", "//com////////////////" }, "/forum/topic/com" },
+            };
+            foreach (var testCase in testCases)
+            {
+                Assert.AreEqual(
+                    testCase.Value,
+                    helper.CombineUrl(testCase.Key),
+                    $"{testCase.Key[0]} + {testCase.Key[1]}"
+                );
+            }
         }
     }
 }
