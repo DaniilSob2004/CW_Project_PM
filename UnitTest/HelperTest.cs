@@ -96,6 +96,10 @@ namespace UnitTest
                 { new[] { "//forum////", "topic////", "///com" }, "/forum/topic/com" },
                 { new[] { "forum", "topic", "com" }, "/forum/topic/com" },
                 { new[] { "/forum/", "/topic///////////", "//com////////////////" }, "/forum/topic/com" },
+                { new[] { "/shop", "/cart", "/user", "..", "/123" }, "/shop/cart/123" },
+                { new[] { "/shop///", "///cart", "user", "..", "////123///" }, "/shop/cart/123" },
+                { new[] { "/shop///", "///cart", "user", "..", "////123///", "456" }, "/shop/cart/123/456" },
+                { new[] { "/shop///", "///cart", "..", "user//", "///123", "456//" }, "/shop/user/123/456" },
             };
             foreach (var testCase in testCases)
             {

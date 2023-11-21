@@ -28,16 +28,32 @@ namespace App
         {
             StringBuilder result = new();
             string temp;
-            foreach (string part in parts)
+            for (int i = 0; i < parts.Length; i++)
             {
-                // !!! СВОИ ЦИКЛЫ СДЕЛАЛ, НО ПОТОМ НАШЁЛ ГОТОВЫЕ МЕТОДЫ TrimStart() и TrimEnd() !!!
-                // while (temp[0] == '/') { temp = temp[1..^0]; temp = "/" + temp }
-                // while (temp[temp.Length - 1] == '/') { temp = temp[..^1]; }
+                if (parts[i] == "..") { continue; }
 
-                temp = "/" + part.TrimStart('/').TrimEnd('/');
+                temp = "/" + parts[i].TrimStart('/').TrimEnd('/');
+
+                if ((i != parts.Length - 1) && parts[i + 1] == "..") { continue; }
+
                 result.Append(temp);
             }
             return result.ToString();
+
+
+            // ------------- третья версия -------------
+            //StringBuilder result = new();
+            //string temp;
+            //foreach (string part in parts)
+            //{
+            //    // !!! СВОИ ЦИКЛЫ СДЕЛАЛ, НО ПОТОМ НАШЁЛ ГОТОВЫЕ МЕТОДЫ TrimStart() и TrimEnd() !!!
+            //    // while (temp[0] == '/') { temp = temp[1..^0]; temp = "/" + temp }
+            //    // while (temp[temp.Length - 1] == '/') { temp = temp[..^1]; }
+
+            //    temp = "/" + part.TrimStart('/').TrimEnd('/');
+            //    result.Append(temp);
+            //}
+            //return result.ToString();
 
 
             // ------------- вторая версия -------------
