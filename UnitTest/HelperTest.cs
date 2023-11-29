@@ -1,6 +1,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using App;
 using System.Collections.Generic;
+using System;
 
 /*
  Тестовый проект "отзеркаливает" основной проект, его классы наз. от имени классов проекта, добавляя "Test",
@@ -29,6 +30,38 @@ namespace UnitTest
                 "Test...",  // ожидается
                 helper.Ellipsis("Test String", 7)  // что получиться
             );
+        }
+
+        [TestMethod]
+        public void EllipsisExceptionTest()
+        {
+            // Тестирование исключений имеет ряд особенностей:
+            //   - Появление исключений в коде тестового проекта вважаэться провалом теста.
+            //     Соостветственно, непосредственный вызов методов с внутренними исключениями неправильный.
+            //     ! Методы "обворачиваются" в лямбды.
+            //   - Проверка типа исключений происходит в "суровом" сравнении.
+            //     Т.е. общие типы "Exception" не засчитываются, если реальное исключение другого типа.
+            //     (даже, если это тип - наследник Exception)
+            //   - само исключение, которое возникло в лямбде, возвращается в Assert, что позволяет добавить
+            //     проверки(тесты) на его содержание или структуру.
+            Helper helper = new();
+            var ex = Assert.ThrowsException<ArgumentNullException>(
+                         () => helper.Ellipsis(null!, 1)
+                     );
+            // лямбда - объект с одним методом, создаётся анонимный класс с анонимным методом.
+            // оператор () - функтор, объект ведёт себя как ф-ция
+
+            Assert.IsTrue(ex.Message.Contains("input"));
+
+            var ex2 = Assert.ThrowsException<ArgumentException>(
+                         () => helper.Ellipsis("Hello, world", 1)
+                     );
+            Assert.IsTrue(ex2.Message.Contains("len"));
+
+            var ex3 = Assert.ThrowsException<ArgumentOutOfRangeException>(
+                         () => helper.Ellipsis("Hello, world", 100)
+                     );
+            Assert.IsTrue(ex3.Message.Contains("len"));
         }
 
         [TestMethod]
@@ -83,6 +116,55 @@ namespace UnitTest
                 );
             }
         }
+
+        [TestMethod]
+        public void CombineUrlExceptionTest()
+        {
+            Helper helper = new();
+
+            // проверка на значение null в конце
+            Assert.AreEqual("/home", helper.CombineUrl("/home", null!));
+            Assert.AreEqual("/home/path", helper.CombineUrl("/home", "///path//", null!));
+            Assert.AreEqual("/home/user", helper.CombineUrl("/home", "///path//", "..", "user//", null!));
+
+            // проверка на все значения null
+            var ex = Assert.ThrowsException<ArgumentException>(
+                () => helper.CombineUrl(null!, null!)
+            );
+            Assert.AreEqual("All arguments are null", ex.Message);
+
+            ex = Assert.ThrowsException<ArgumentException>(
+                () => helper.CombineUrl(null!, null!, null!, null!, null!, null!)
+            );
+            Assert.AreEqual("All arguments are null", ex.Message);
+
+            ex = Assert.ThrowsException<ArgumentException>(
+                () => helper.CombineUrl()
+            );
+            Assert.AreEqual("Parts is empty", ex.Message);
+
+            var ex2 = Assert.ThrowsException<NullReferenceException>(
+                () => helper.CombineUrl(null!)
+            );
+            Assert.AreEqual("Parts is null", ex2.Message);
+
+            // проверка на значение null в начале или середине
+            var ex3 = Assert.ThrowsException<ArgumentException>(
+                () => helper.CombineUrl(null!, "/subsection")
+            );
+            Assert.AreEqual("Non-Null argument after Null one", ex3.Message);
+
+            ex3 = Assert.ThrowsException<ArgumentException>(
+                () => helper.CombineUrl("/path", null!, "/subsection")
+            );
+            Assert.AreEqual("Non-Null argument after Null one", ex3.Message);
+
+            ex3 = Assert.ThrowsException<ArgumentException>(
+                () => helper.CombineUrl("/path", "/path2", null!, "/subsection")
+            );
+            Assert.AreEqual("Non-Null argument after Null one", ex3.Message);
+        }
+
         [TestMethod]
         public void CombineUrlMultiTest()
         {
