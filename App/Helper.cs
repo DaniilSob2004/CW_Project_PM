@@ -8,15 +8,17 @@ namespace App
 {
     public class Helper
     {
-        static char[] specialChars = { '!', '?', '.', ',' };
+        static char[] specialChars = { '!', '?', '.', ',' };  // символы, на которые строка должна заканчиваться
 
+        // обрезает строку добавляя 3 точки в конце, учитывая макс. длину, который текст должен иметь
         public string Ellipsis(string input, int len)
         {
             if (input is null)
             {
-                throw new ArgumentNullException(nameof(input));
-                // с помощью nameof строка в пул не будет занесена
+                throw new ArgumentNullException(nameof(input));  // с помощью nameof строка в пул не будет занесена
             }
+
+            // проверка диапазона ввода
             if (len < 3)
             {
                 throw new ArgumentException("Argument 'len' could not be less then 3");
@@ -32,25 +34,29 @@ namespace App
             return input[..(len - 3)] + "...";
         }
 
+        // добавляет точку если в строке её нет
         public string Finalize(string input)
         {
             int len = input.Length;
+
+            // дополнительная проверка, если уже какие-то символы есть в конце строки
             return (len > 0 && !specialChars.Contains(input[len - 1])) ? input += "." : input;
         }
 
+        // объединяет элементы массива в адресную строку
         public string CombineUrl(params string[] parts)
         {
             if (parts is null) { throw new NullReferenceException("Parts is null"); }
             if (parts.Length == 0) { throw new ArgumentException("Parts is empty"); }
 
-            StringBuilder result = new();
+            StringBuilder result = new();  // будет много работы с добавлением строк, поэтому используем StringBuilder
             string temp;
-            bool wasNull = false;
+            bool wasNull = false;  // для проверки, что если после null идёт строка, то это ошибка
             for (int i = 0; i < parts.Length; i++)
             {
                 if (parts[i] is null)
                 {
-                    wasNull = true;
+                    wasNull = true;  // устанавливаем флаг
                     continue; 
                 }
                 if (wasNull)
@@ -58,9 +64,10 @@ namespace App
                     throw new ArgumentException("Non-Null argument after Null one");
                 }
 
-                if (parts[i] == "..") { continue; }
-                temp = "/" + parts[i].TrimStart('/').TrimEnd('/');
-                if ((i != parts.Length - 1) && parts[i + 1] == "..") { continue; }
+                if (parts[i] == "..") { continue; }  // игнорируем строку
+                temp = "/" + parts[i].TrimStart('/').TrimEnd('/');  // удаляем все '/' и добавляем один в начало
+
+                if ((i != parts.Length - 1) && parts[i + 1] == "..") { continue; }  // если строка не последняя в массиве и следующая строка это '..'
                 result.Append(temp);
             }
             if (result.Length == 0)
@@ -70,7 +77,7 @@ namespace App
             return result.ToString();
 
 
-            // ------------- третья версия -------------
+            // ------------- Третья версия -------------
             //StringBuilder result = new();
             //string temp;
             //foreach (string part in parts)
@@ -85,7 +92,7 @@ namespace App
             //return result.ToString();
 
 
-            // ------------- вторая версия -------------
+            // ------------- Вторая версия -------------
             //StringBuilder result = new();
             //string temp;
             //foreach (string part in parts)
@@ -104,7 +111,7 @@ namespace App
             //return result.ToString();
 
 
-            // ------------- первая версия -------------
+            // ------------- Первая версия -------------
             //if (!part1.StartsWith('/'))
             //{
             //    part1 = "/" + part1;

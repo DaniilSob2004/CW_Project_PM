@@ -17,7 +17,7 @@ namespace UnitTest
         public void EllipsisTest()
         {
             Helper helper = new();
-            Assert.IsNotNull(helper, "new Helper() should not be null");
+            Assert.IsNotNull(helper, "new Helper() should not be null");  // проверка на null
             Assert.AreEqual(
                 "He...",  // ожидается
                 helper.Ellipsis("Hello, World!", 5)  // что получиться
@@ -45,20 +45,20 @@ namespace UnitTest
             //   - само исключение, которое возникло в лямбде, возвращается в Assert, что позволяет добавить
             //     проверки(тесты) на его содержание или структуру.
             Helper helper = new();
-            var ex = Assert.ThrowsException<ArgumentNullException>(
+            var ex = Assert.ThrowsException<ArgumentNullException>(  // проверка исключения на аргумент null
                          () => helper.Ellipsis(null!, 1)
                      );
             // лямбда - объект с одним методом, создаётся анонимный класс с анонимным методом.
             // оператор () - функтор, объект ведёт себя как ф-ция
 
-            Assert.IsTrue(ex.Message.Contains("input"));
+            Assert.IsTrue(ex.Message.Contains("input"));  // проверка на текст ошибки
 
-            var ex2 = Assert.ThrowsException<ArgumentException>(
+            var ex2 = Assert.ThrowsException<ArgumentException>(  // проверка исключения на неверный ввод кол-ва символов
                          () => helper.Ellipsis("Hello, world", 1)
                      );
             Assert.IsTrue(ex2.Message.Contains("len"));
 
-            var ex3 = Assert.ThrowsException<ArgumentOutOfRangeException>(
+            var ex3 = Assert.ThrowsException<ArgumentOutOfRangeException>(  // проверка исключения на неверный ввод кол-ва символов
                          () => helper.Ellipsis("Hello, world", 100)
                      );
             Assert.IsTrue(ex3.Message.Contains("len"));
@@ -68,8 +68,9 @@ namespace UnitTest
         public void FinalizeTest()
         {
             Helper helper = new();
-            Assert.IsNotNull(helper, "new Helper() should not be null");
+            Assert.IsNotNull(helper, "new Helper() should not be null");  // проверка на null
 
+            // проверки на равенство, чтобы строка заканчивалась на определённый знак
             Assert.AreEqual(
                 "Hello, Daniil.",
                 helper.Finalize("Hello, Daniil")
@@ -96,6 +97,8 @@ namespace UnitTest
         public void CombineUrlTest()
         {
             Helper helper = new();
+
+            // словарь, для компактной проверки данных
             Dictionary< string[], string> testCases = new()
             {
                 { new[] { "/home", "index" }, "/home/index" },
@@ -110,9 +113,9 @@ namespace UnitTest
             foreach (var testCase in testCases)
             {
                 Assert.AreEqual(
-                    testCase.Value,
-                    helper.CombineUrl(testCase.Key[0], testCase.Key[1]),
-                    $"{testCase.Key[0]} - {testCase.Key[1]}"
+                    testCase.Value,  // ожидаем
+                    helper.CombineUrl(testCase.Key[0], testCase.Key[1]),  // результат
+                    $"{testCase.Key[0]} - {testCase.Key[1]}"  // текст в случаи ошибки
                 );
             }
         }
@@ -169,6 +172,8 @@ namespace UnitTest
         public void CombineUrlMultiTest()
         {
             Helper helper = new();
+
+            // словарь, для компактной проверки данных
             Dictionary<string[], string> testCases = new()
             {
                 { new[] { "/home", "/index", "/gmail" }, "/home/index/gmail" },
@@ -186,9 +191,9 @@ namespace UnitTest
             foreach (var testCase in testCases)
             {
                 Assert.AreEqual(
-                    testCase.Value,
-                    helper.CombineUrl(testCase.Key),
-                    $"{testCase.Key[0]} + {testCase.Key[1]}"
+                    testCase.Value,  // ожидаем
+                    helper.CombineUrl(testCase.Key),  // результат
+                    $"{testCase.Key[0]} + {testCase.Key[1]}"  // текст в случаи ошибки
                 );
             }
         }
