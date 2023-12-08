@@ -1,14 +1,38 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
+using System.Text.RegularExpressions;
 
 namespace App
 {
     public class Helper
     {
         static char[] specialChars = { '!', '?', '.', ',' };  // символы, на которые строка должна заканчиваться
+
+        // проверяет строку HTML на присутствие атрибутов в тегах
+        public bool ContainsAttributes(String html)
+        {
+            string pattern = @"<(\w+\s+[^=>])*(\w+=[^>]+)+>";
+            Regex regex = new Regex(pattern, RegexOptions.IgnoreCase);
+            return regex.IsMatch(html);
+        }
+
+        // заменяет активные HTML символы на сущность
+        public string EscapeHtml(string html, Dictionary<string, string>? map = null)
+        {
+            if (html is null) { throw new ArgumentException("Argument 'html' is null"); }
+            if (html.Length == 0) { return html; }
+
+            Dictionary<string, string> htmlSpecSymbols = map ?? new()  // если map null, то создаётся новый словарь
+            {
+                { "&", "&amp;" },
+                { "<", "&lt;" },
+                { ">", "&gt;" }
+            };
+            foreach (var pair in htmlSpecSymbols)
+            {
+                html = html.Replace(pair.Key, pair.Value);
+            }
+            return html;
+        }
 
         // обрезает строку добавляя 3 точки в конце, учитывая макс. длину, который текст должен иметь
         public string Ellipsis(string input, int len)

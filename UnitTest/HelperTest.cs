@@ -14,6 +14,66 @@ namespace UnitTest
     public class HelperTest
     {
         [TestMethod]
+        public void ContainsAttributesTest()
+        {
+            Helper helper = new();
+            Assert.IsNotNull(helper, "new Helper() should not be null");  // проверка на null
+
+            Assert.IsTrue(helper.ContainsAttributes("<div style=\"\"></div>"));
+            Assert.IsTrue(helper.ContainsAttributes("<i style=\"code\" ></div>"));
+            Assert.IsTrue(helper.ContainsAttributes("<i style=\"code\"  required ></div>"));
+            Assert.IsTrue(helper.ContainsAttributes("<i style='code'  required></div>"));
+            Assert.IsTrue(helper.ContainsAttributes("<i required style=\"code\" ></div>"));
+            Assert.IsTrue(helper.ContainsAttributes("<i required style=\"code\"></div>"));
+            Assert.IsTrue(helper.ContainsAttributes("<img onload=\"dangerCode()\" src=\"puc.png\"/>"));
+            Assert.IsTrue(helper.ContainsAttributes("<img width=100 />"));
+            Assert.IsTrue(helper.ContainsAttributes("<img width=100/>"));
+            Assert.IsTrue(helper.ContainsAttributes("<img width=100>"));
+            Assert.IsTrue(helper.ContainsAttributes("<img width=500 required/>"));
+            Assert.IsTrue(helper.ContainsAttributes("<img      width=500    required   />"));
+
+            Assert.IsFalse(helper.ContainsAttributes("<div></div>"));
+            Assert.IsFalse(helper.ContainsAttributes("<div ></div>"));
+            Assert.IsFalse(helper.ContainsAttributes("<br/>"));
+            Assert.IsFalse(helper.ContainsAttributes("<br />"));
+            Assert.IsFalse(helper.ContainsAttributes("<div required ></div>"));
+            Assert.IsFalse(helper.ContainsAttributes("<div required>x=5</div>"));
+            Assert.IsFalse(helper.ContainsAttributes("<div required checked></div>"));
+            Assert.IsFalse(helper.ContainsAttributes("<div>2=2</div>"));
+        }
+
+        [TestMethod]
+        public void EscapeHtmlTest()
+        {
+            Helper helper = new();
+
+            // проверки на null
+            Assert.IsNotNull(helper, "new Helper() should not be null");
+            Assert.IsNotNull(helper.EscapeHtml(">"), "EscapeHtml should not return null!");
+            Assert.IsNotNull(helper.EscapeHtml("<"), "EscapeHtml should not return null!");
+
+            // проверки на равенство
+            Assert.AreEqual(
+                "&lt;div class=\"container\"&gt;&lt;p&gt;Hello, &amp; world!&lt;/p&gt;&lt;/div&gt;",
+                helper.EscapeHtml("<div class=\"container\"><p>Hello, & world!</p></div>")
+            );
+            Assert.AreEqual("&lt;Hello world!&gt;", helper.EscapeHtml("<Hello world!>"));
+            Assert.AreEqual("&lt;p&gt;Hello &amp; Goodbye&lt;/p&gt;", helper.EscapeHtml("<p>Hello & Goodbye</p>"));
+            Assert.AreEqual("", helper.EscapeHtml(""));
+        }
+        [TestMethod]
+        public void EscapeHtmlExceptionTest()
+        {
+            Helper helper = new();
+            Assert.IsNotNull(helper, "new Helper() should not be null");  // проверка на null
+
+            var ex = Assert.ThrowsException<ArgumentException>(  // проверка исключения на значения null
+                () => helper.EscapeHtml(null!)
+            );
+            Assert.AreEqual("Argument 'html' is null", ex.Message);
+        }
+
+        [TestMethod]
         public void EllipsisTest()
         {
             Helper helper = new();
@@ -31,7 +91,6 @@ namespace UnitTest
                 helper.Ellipsis("Test String", 7)  // что получиться
             );
         }
-
         [TestMethod]
         public void EllipsisExceptionTest()
         {
@@ -119,7 +178,6 @@ namespace UnitTest
                 );
             }
         }
-
         [TestMethod]
         public void CombineUrlExceptionTest()
         {
@@ -167,7 +225,6 @@ namespace UnitTest
             );
             Assert.AreEqual("Non-Null argument after Null one", ex3.Message);
         }
-
         [TestMethod]
         public void CombineUrlMultiTest()
         {
